@@ -4,15 +4,26 @@ HOST = 'localhost'
 PORT = 50000
 serverKeeper = True
 
+
+# armazenamento dos dados de memória RAM, HD e uso do cpu
+memList  = []
+diskList = []
+cpuList = []
+
+# instancia socket tcp
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# associa a um endereço e porta
 s.bind((HOST, PORT))
+
+# começa a escutar requisições
 s.listen()
 
 memList  = []
 diskList = []
 cpuList = []
 
-#class where the info is stored and than added to a list to later be sent back to the client
+#classe criada para armanezar os dados como nome e informações recebidas do cliente como armazenamento interno, memoria e cpu
 class Info:
     def __init__(self, username, info):
         self.name = username
@@ -24,22 +35,28 @@ print('Aguardando Conexões!')
 def handle_client(conn) :
     print('Um dispositivo conectado')
     x = 0
-    while True :
-        sent_back = False
-        data = conn.recv(4096)
-        entrance = str(data.decode()).split(' ')
-        #entrace is the data received from the client, but splited to be identified
 
-        #here identifies what's the "type" of the message
+    # fica conectado ao cliente enquanto for necessário
+    while True :
+        # variável usilizada para identificar se a resposta referente à requisição atual já foi enviara de volta
+        sent_back = False
+
+        # recebe informação
+        data = conn.recv(4096)
+
+        # trata a mensagem recebida
+        entrance = str(data.decode()).split(' ')
+
+        # enviar informações de volta ao cliente sobre como fazer a requisição
         if entrance[0].lower()=='help':
             conn.sendall(b'\nTIPOS DE MENSAGEM:\npost {mem/disk/cpu} {your_name}\nget {mem/disk/cpu} {name}')
 
         try:
-           #identifies the type of the message, if it's a "get" or a "post", if it's neither both, it's gonna "throw" an error
+           
+            # faz tratamento para mensagem do tipo post
             if entrance[0].lower() == 'post':
 
-                #now it identifies the type of information that is being received and than, it's gonna be storaged in a list
-
+                # faz tratamento para mensagem do tipo post de memória ram
                 if entrance[1].lower() == 'mem':
                     memInfo =''
                     for x in range(3,len(entrance),+1):
@@ -55,6 +72,7 @@ def handle_client(conn) :
                         sent_back = True
                     
 
+                # faz tratamento para mensagem do tipo post de HD
                 if entrance[1].lower() == 'disk':
                     name = entrance[2]
                     diskInfo =''
@@ -70,6 +88,7 @@ def handle_client(conn) :
                         conn.sendall(b'Guardamos informacoes do disco!\n')
                         sent_back = True
 
+                # faz tratamento para mensagem do tipo post de CPU
                 if entrance[1].lower() == 'cpu':
                     cpuInfo =''
                     x = 3
@@ -83,9 +102,10 @@ def handle_client(conn) :
                         conn.sendall(b'Guardamos informacoes da cpu!')
                         sent_back = True
 
-            #if it's a get, it's gonna send it anyway, the server is going to identifies if anything is wrong
+            # faz tratamento para mensagem do tipo get
             if entrance[0].lower() == 'get':
 
+                # get informações de memória ram
                 if entrance[1].lower() == 'mem':
                     if not entrance[2]:
                         sent_back = False
@@ -102,6 +122,7 @@ def handle_client(conn) :
                         conn.sendall(result)
                         sent_back = True
             
+                # get de informações de disco rígido
                 if entrance[1].lower() == 'disk':
                     if not entrance[2]:
                         sent_back = False
@@ -118,6 +139,7 @@ def handle_client(conn) :
                         conn.sendall(result)
                         sent_back = True
 
+                # get de informações do uso do CPU
                 if entrance[1].lower() == 'cpu':
                     if not entrance[2]:
                         sent_back = False
@@ -134,10 +156,12 @@ def handle_client(conn) :
                         conn.sendall(result)
                         sent_back = True
             
-            #there's a variable where it says if the message is right or not, if it's not, it says that it's wrong
+            # se a requisição foi feita de maneira incorreta e as condições anteriores não foram atendidas, ele retorna para
+            # o cliente um aviso de mensagem mal formulada
             if not sent_back :
                 conn.sendall(b'Mensagem mal formulada')
         
+            # se a mensagem estiver vazia, encerra o servidor
             if not data:
                 print('fechando conexão')
                 conn.close()
@@ -146,9 +170,11 @@ def handle_client(conn) :
             conn.sendall(b'Mensagem mal formulada')
 
 
-
+# fica recebendo novas requisições de conexão de novos clientes.
 while serverKeeper: 
     conn, addres = s.accept()
+    
+    # quando a conecão é aceita, inicia-se a troca de mensagens
     thread = threading.Thread(target=handle_client, args=(conn,))
     thread.start()
     

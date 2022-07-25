@@ -1,18 +1,18 @@
 import socket, threading
-from time import time
 
 HOST = 'localhost'
 PORT = 50000
 serverKeeper = True
 
-memList  = []
-diskList = []
-cpuList = []
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen()
 
+memList  = []
+diskList = []
+cpuList = []
+
+#class where the info is stored and than added to a list to later be sent back to the client
 class Info:
     def __init__(self, username, info):
         self.name = username
@@ -20,6 +20,7 @@ class Info:
 
 print('Aguardando Conexões!')
 
+#function that identifies connection
 def handle_client(conn) :
     print('Um dispositivo conectado')
     x = 0
@@ -27,15 +28,17 @@ def handle_client(conn) :
         sent_back = False
         data = conn.recv(4096)
         entrance = str(data.decode()).split(' ')
+        #entrace is the data received from the client, but splited to be identified
 
+        #here identifies what's the "type" of the message
         if entrance[0].lower()=='help':
             conn.sendall(b'\nTIPOS DE MENSAGEM:\npost {mem/disk/cpu} {your_name}\nget {mem/disk/cpu} {name}')
 
         try:
-           
-       
-
+           #identifies the type of the message, if it's a "get" or a "post", if it's neither both, it's gonna "throw" an error
             if entrance[0].lower() == 'post':
+
+                #now it identifies the type of information that is being received and than, it's gonna be storaged in a list
 
                 if entrance[1].lower() == 'mem':
                     memInfo =''
@@ -80,6 +83,7 @@ def handle_client(conn) :
                         conn.sendall(b'Guardamos informacoes da cpu!')
                         sent_back = True
 
+            #if it's a get, it's gonna send it anyway, the server is going to identifies if anything is wrong
             if entrance[0].lower() == 'get':
 
                 if entrance[1].lower() == 'mem':
@@ -130,6 +134,7 @@ def handle_client(conn) :
                         conn.sendall(result)
                         sent_back = True
             
+            #there's a variable where it says if the message is right or not, if it's not, it says that it's wrong
             if not sent_back :
                 conn.sendall(b'Mensagem mal formulada')
         

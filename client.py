@@ -6,29 +6,24 @@ PORT = 50000
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-
 s.connect((HOST,PORT))
 
 while True:
-
     # Get cpu statistics
-    cpu = str(psutil.cpu_stats()) + '%'
-
+    cpu = str(psutil.cpu_freq())
     # Calculate memory information
     memory = psutil.virtual_memory()
     # Convert Bytes to MB (Bytes -> KB -> MB)
     available = round(memory.available/1024.0/1024.0,1)
     total = round(memory.total/1024.0/1024.0,1)
-    mem_info = str(available) + 'MB free / ' + str(total) + 'MB total ( ' + str(memory.percent) + '% )'
+    mem_info = str(available) + 'MB Livre / ' + str(total) + 'MB total ( ' + str(memory.percent) + '% )'
 
     # Calculate disk information
     disk = psutil.disk_usage('/')
     # Convert Bytes to GB (Bytes -> KB -> MB -> GB)
     free = round(disk.free/1024.0/1024.0/1024.0,1)
     total = round(disk.total/1024.0/1024.0/1024.0,1)
-    disk_info = str(free) + 'GB free / ' + str(total) + 'GB total ( ' + str(disk.percent) + '% )'
-
+    disk_info = str(free) + 'GB Livre / ' + str(total) + 'GB total ( ' + str(disk.percent) + '% )'
   
     x = input('Digite o que quer enviar:\n')
     entrance = x.split(' ')
@@ -81,6 +76,7 @@ while True:
         print()
 
 
+    #if it's null, it's gonna close the connection
     if not str.encode(x):
         s.close()
         break 

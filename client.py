@@ -9,18 +9,18 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST,PORT))
 
 while True:
-    # Get cpu statistics
+    # Pega as estatísticas do cpu
     cpu = str(psutil.cpu_freq())
-    # Calculate memory information
+    # Calcula a informação da memória
     memory = psutil.virtual_memory()
-    # Convert Bytes to MB (Bytes -> KB -> MB)
+    # Converte bytes em MB (Bytes -> KB -> MB)
     available = round(memory.available/1024.0/1024.0,1)
     total = round(memory.total/1024.0/1024.0,1)
     mem_info = str(available) + 'MB Livre / ' + str(total) + 'MB total ( ' + str(memory.percent) + '% )'
 
-    # Calculate disk information
+    # Calcula informação do disco
     disk = psutil.disk_usage('/')
-    # Convert Bytes to GB (Bytes -> KB -> MB -> GB)
+    # Converte bytes em GB (Bytes -> KB -> MB -> GB)
     free = round(disk.free/1024.0/1024.0/1024.0,1)
     total = round(disk.total/1024.0/1024.0/1024.0,1)
     disk_info = str(free) + 'GB Livre / ' + str(total) + 'GB total ( ' + str(disk.percent) + '% )'
@@ -28,10 +28,10 @@ while True:
     x = input('Digite o que quer enviar:\n')
     entrance = x.split(' ')
 
-    #here identifies what's the "type" of the message
+    # identifica aqui qual é o "tipo" da mensagem
     if entrance[0].lower() == 'post':
 
-      #if it's mem, it's gonna send mem informations
+      # se é mem, vai mandar informações da memória
       if entrance[1].lower() == 'mem':
         package = x + ' ' + mem_info
 
@@ -41,7 +41,7 @@ while True:
         print('O servidor respondeu com: ', data.decode())
         print()
 
-      #if it's cpu, it's gonna send cpu informations
+      # se é cpu, vai mandar informações do cpu
       if entrance[1].lower() == 'cpu':
         package = x + ' ' + cpu
         s.sendall(str.encode(package)) 
@@ -50,7 +50,7 @@ while True:
         print('O servidor respondeu com: ', data.decode())
         print()
 
-      #if it's disk, it's gonna send disk informations
+      # se é disk, vai mandar informações do disco rígido
       if entrance[1].lower() == 'disk':
         package = x + ' ' + disk_info
         s.sendall(str.encode(package)) 
@@ -59,7 +59,7 @@ while True:
         print('O servidor respondeu com: ', data.decode())
         print()
 
-    #if it's a get, it's gonna send it anyway, the server is going to identifies if anything is wrong
+    # se é um get, vai mandar de qualquer forma e o servidor vai identificar se tem algo errado
     elif entrance[0].lower() == 'get':
         s.sendall(str.encode(x)) 
         data = s.recv(4096)
@@ -67,7 +67,7 @@ while True:
         print('O servidor respondeu com: ', data.decode())
         print()
 
-    #it's gonna send anything if it's not null
+    # vai mandar alguma coisa se não é nulo
     elif entrance[0].lower() != '':
         s.sendall(str.encode(x)) 
         data = s.recv(4096)
@@ -76,10 +76,7 @@ while True:
         print()
 
 
-    #if it's null, it's gonna close the connection
+    # se é nulo, vai fechar a conexão
     if not str.encode(x):
         s.close()
         break 
-
-    
-    
